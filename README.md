@@ -1,59 +1,127 @@
-# `backend`
+# TswanaTech-AI-Health-Coach
+# FiTswana AI  
 
-Welcome to your new `backend` project and to the Internet Computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+## Try FiTswana AI  
+FiTswana AI is live on the Internet Computer. Experience next-level health management by visiting [here]().  
 
-To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
+**Notes**: 
+- FiTswana AI connects to Ai models from web2 using HTTPS outcalls for secure and efficient operations.  
+- Optimal performance on desktop browsers (Chrome and Edge recommended).  
+- Ensure minimal resource contention for an improved experience.  
 
-To learn more before you start working with `backend`, see the following documentation available online:
+---
 
-- [Quick Start](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally)
-- [SDK Developer Tools](https://internetcomputer.org/docs/current/developer-docs/setup/install)
-- [Motoko Programming Language Guide](https://internetcomputer.org/docs/current/motoko/main/motoko)
-- [Motoko Language Quick Reference](https://internetcomputer.org/docs/current/motoko/main/language-manual)
+## About FiTswana AI  
 
-If you want to start working on your project right away, you might want to try the following commands:
+FiTswana AI is a decentralized, AI-driven health coach designed to promote proactive health management. Developed on the Internet Computer by **TswanaTech**, FiTswana AI ensures privacy, security, and seamless functionality for users.  
 
+### Key Features  
+
+### Key Features
+
+- **Decentralized**: Operates directly within the browser. Users can choose if they want to log in and store their chats on the decentralized cloud and under their control.
+- **Trusted**: No corporation behind, just an AI serving the user.
+- **Open-source**: Built on open-source software (notably Web LLM and Internet Computer).
+- **Personalized**: Users engage in meaningful conversations and ask questions, all while ensuring their privacy.
+
+---
+
+## Architecture  
+
+FiTswana AI is built using modern technologies to ensure scalability, security, and performance:  
+
+### Frontend  
+- Built using **React** and **TypeScript** for a smooth, user-friendly interface.  
+
+### Backend  
+- Developed with **Motoko** for secure data handling on the Internet Computer.  
+
+### AI Integration/ web LLM  
+- The open-source project Web LLM allows us to load and interact with open-source AI models through HTTPS OUTCALLS. The selected model is loaded and cached into the browser and runs directly there, thus on the user's device. That way all interactions and data may stay local to the device. This significantly improves privacy and control over user data.
+
+### Authentication  
+- not yet implemented but proposedly **Internet Identity** for seamless and secure user login.  
+---
+
+## Internet Computer Resources  
+
+Learn more about the Internet Computer through these resources:  
+- [Quick Start Guide](https://sdk.dfinity.org/docs/quickstart/quickstart-intro.html)  
+- [Motoko Language Documentation](https://sdk.dfinity.org/docs/language-guide/motoko.html)  
+- [Canister Management Guide](https://sdk.dfinity.org/docs/developers-guide/canister-lifecycle.html)  
+
+---
+
+## Running FiTswana AI Locally  
+
+### Prerequisites  
+Ensure the following are installed:  
+- [Node.js](https://nodejs.org/)  
+- [DFX SDK](https://internetcomputer.org/docs/current/developer-docs/build/install/)  
+- [Vessel](https://github.com/dfinity/vessel)  
+
+### Steps  
+
+**Install Dependencies**  
 ```bash
-cd backend/
-dfx help
-dfx canister --help
+npm install
+```
+**Start Local Replica**
+```bash
+npm run dev
+```
+Note: this starts a local replica of the Internet Computer (IC) which includes the canisters state stored from previous sessions.
+If you want to start a clean local IC replica (i.e. all canister state is erased) run instead:
+*To reset local state:*
+```bash
+npm run erase-replica
+```
+**Deploy Canisters**
+```bash
+dfx deploy --argument "(principal \"$(dfx identity get-principal)\")" FiTswana_backend --network local
+dfx deploy FiTswana_frontend --network local
+```  
+**Deployment to Internet Computer Mainnet**
+**Development Deployment**
+```bash
+dfx deploy --network development --argument "(principal \"$(dfx identity get-principal)\")" FiTswana_backend  
+dfx deploy FiTswana_frontend --network development
+```
+**Production Deployment**
+```bash
+npm install  
+dfx start --background  
+dfx deploy --network ic --argument "(principal \"$(dfx identity get-principal)\")" FiTswana_backend  
+dfx deploy --network ic FiTswana_frontend  
+```
+Deploy to Mainnet (live IC):
+Ensure that all changes needed for Mainnet deployment have been made (e.g. define HOST in store.ts)
+```bash
+dfx deploy --network ic --argument "( principal\"$(dfx identity get-principal)\" )" DeVinci_backend
+dfx deploy --network ic DeVinci_frontend
+```
+In case there are authentication issues, you could try this command
+(Note that only authorized identities which are set up as canister controllers may deploy the production canisters)
+```bash
+dfx deploy --network ic --wallet "$(dfx identity --network ic get-wallet)"
 ```
 
-## Running the project locally
+# Credits
+Running FiTswana in your browser is enabled by the great open-source project [Web LLM](https://webllm.mlc.ai/)
 
-If you want to test your project locally, you can use the following commands:
+Serving this app and hosting the data securely and in a decentralized way is made possible by the [Internet Computer](https://internetcomputer.org/)
 
+## Cycles for Production Canisters
+Due to the IC's reverse gas model, developers charge their canisters with cycles to pay for any used computational resources. The following can help with managing these cycles.
+
+Fund wallet with cycles (from ICP): https://medium.com/dfinity/internet-computer-basics-part-3-funding-a-cycles-wallet-a724efebd111
+
+Top up cycles:
 ```bash
-# Starts the replica, running in the background
-dfx start --background
-
-# Deploys your canisters to the replica and generates your candid interface
-dfx deploy
+dfx identity --network=ic get-wallet
+dfx wallet --network ic balance
+dfx canister --network ic status DeVinci_backend
+dfx canister --network ic status DeVinci_frontend
+dfx canister --network ic --wallet 3v5vy-2aaaa-aaaai-aapla-cai deposit-cycles 3000000000000 DeVinci_backend
+dfx canister --network ic --wallet 3v5vy-2aaaa-aaaai-aapla-cai deposit-cycles 300000000000 DeVinci_frontend
 ```
-
-Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
-
-If you have made changes to your backend canister, you can generate a new candid interface with
-
-```bash
-npm run generate
-```
-
-at any time. This is recommended before starting the frontend development server, and will be run automatically any time you run `dfx deploy`.
-
-If you are making frontend changes, you can start a development server with
-
-```bash
-npm start
-```
-
-Which will start a server at `http://localhost:8080`, proxying API requests to the replica at port 4943.
-
-### Note on frontend environment variables
-
-If you are hosting frontend code somewhere without using DFX, you may need to make one of the following adjustments to ensure your project does not fetch the root key in production:
-
-- set`DFX_NETWORK` to `ic` if you are using Webpack
-- use your own preferred method to replace `process.env.DFX_NETWORK` in the autogenerated declarations
-  - Setting `canisters -> {asset_canister_id} -> declarations -> env_override to a string` in `dfx.json` will replace `process.env.DFX_NETWORK` with the string in the autogenerated declarations
-- Write your own `createActor` constructor
