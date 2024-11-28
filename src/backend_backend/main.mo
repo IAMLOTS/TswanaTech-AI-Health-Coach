@@ -1,146 +1,51 @@
 import Debug "mo:base/Debug";
+import User "path/to/User.mo"; // Adjust the path to your User.mo file
 
-// Data structure for a user
-actor User {
-    type UserData = {
-        username: Text;
-        age: Int;
-        weight: Float;
-        height: Float;
-        healthConditions: [Text];
-        lifestyleHabits: [Text];
+actor Main {
+
+    type HealthAdvice = {
+        recommendation: Text;
+        reason: Text;
     };
 
-    // Store for all registered users
-    stable var users: [UserData] = [];
+    stable var healthRecommendations: [HealthAdvice] = [
+        { recommendation = "Increase daily water intake to 2.5 liters.", reason = "Hydration is essential for maintaining optimal bodily functions." },
+        { recommendation = "Engage in 30 minutes of physical activity daily.", reason = "Regular exercise reduces the risk of heart disease and obesity." },
+        { recommendation = "Reduce sugar intake.", reason = "Excessive sugar consumption leads to diabetes and weight gain." }
+    ];
 
-    // Register a new user
-    public func registerUser(username: Text, age: Int, weight: Float, height: Float, healthConditions: [Text], lifestyleHabits: [Text]) : async Text {
-        // Check if user already exists
-        if (Array.exists<UserData>(users, func(u) { u.username == username })) {
-            return "User already exists!";
-        };
-
-        // Create a new user and add it to the users list
-        let newUser: UserData = {
-            username = username;
-            age = age;
-            weight = weight;
-            height = height;
-            healthConditions = healthConditions;
-            lifestyleHabits = lifestyleHabits;
-        };
-
-        users := Array.append<UserData>(users, [newUser]);
-        return "User registered successfully!";
-    };
-
-    // Retrieve a user's data
-    public func getUserData(username: Text) : async ?UserData {
-        switch (Array.find<UserData>(users, func(u) { u.username == username })) {
-            case (?user) return ?user;
-            case (_) return null;
-        };
-    };
-
-    // Update a user's data
-    public func updateUserData(username: Text, weight: ?Float, height: ?Float, healthConditions: ?[Text], lifestyleHabits: ?[Text]) : async Text {
-        switch (Array.find<UserData>(users, func(u) { u.username == username })) {
-            case (?user) {
-                // Update fields if provided
-                var updatedUser = user;
-                if (weight != null) { updatedUser.weight := weight; };
-                if (height != null) { updatedUser.height := height; };
-                if (healthConditions != null) { updatedUser.healthConditions := healthConditions; };
-                if (lifestyleHabits != null) { updatedUser.lifestyleHabits := lifestyleHabits; };
-
-                // Replace the old user with the updated data
-                users := Array.map<UserData>(users, func(u) { if (u.username == username) updatedUser else u });
-                return "User data updated successfully!";
+    // Function to retrieve personalized health advice based on a user's profile
+    public func getPersonalizedAdvice(username: Text): async ?[HealthAdvice] {
+        let user = await User.getUserData(username);
+        switch (user) {
+            case (?u) {
+                var personalizedAdvice: [HealthAdvice] = [];
+                if (u.weight > 80.0) {
+                    personalizedAdvice := Array.append<HealthAdvice>(personalizedAdvice, [{ recommendation = "Consider a low-calorie diet.", reason = "Managing weight is crucial for avoiding obesity." }]);
+                };
+                if (u.lifestyleHabits.contains("Smoking")) {
+                    personalizedAdvice := Array.append<HealthAdvice>(personalizedAdvice, [{ recommendation = "Reduce smoking or seek cessation programs.", reason = "Smoking is a leading cause of lung diseases." }]);
+                };
+                personalizedAdvice := Array.append<HealthAdvice>(personalizedAdvice, healthRecommendations);
+                return ?personalizedAdvice;
             };
-            case (_) return "User not found!";
-        };
-    };
-
-    // Debug function to display all users (for testing purposes)
-    public func debugUsers() : async () {
-        Debug.print("Users: " # Array.toText(users));
-    };
-};
-
-// Data structure for the AI health coach
-actor HealthCoach {
-
-    type HealthData = {
-        username: Text;
-        recommendedCalories: Float;
-        exercisePlan: [Text];
-        personalizedAdvice: [Text];
-    };
-
-    // Store for all health coaching data
-    stable var healthRecords: [HealthData] = [];
-
-    // Calculate daily calorie needs based on the Mifflin-St Jeor equation
-    public func calculateCalories(weight: Float, height: Float, age: Int, gender: Text) : Float {
-        let bmr: Float;
-        if (gender == "male") {
-            bmr := 10.0 * weight + 6.25 * height - 5.0 * Float(age) + 5.0;
-        } else {
-            bmr := 10.0 * weight + 6.25 * height - 5.0 * Float(age) - 161.0;
-        };
-        // Multiply by activity factor (e.g., 1.2 for sedentary, 1.5 for active)
-        return bmr * 1.2; // Assume sedentary activity for simplicity
-    };
-
-    // Provide exercise plan based on user data
-    public func generateExercisePlan(weight: Float, healthConditions: [Text]) : [Text] {
-        var plan: [Text] = [];
-        // Add exercise based on weight and health conditions
-        if (weight > 100.0) {
-            plan := Array.append<Text>(plan, ["Cardio exercises (walking, cycling)"]);
-        };
-        if (Array.exists<Text>(healthConditions, func(c) { c == "hypertension" })) {
-            plan := Array.append<Text>(plan, ["Low-impact exercise like swimming"]);
-        };
-        return plan;
-    };
-
-    // Provide personalized advice based on health conditions
-    public func generatePersonalizedAdvice(healthConditions: [Text]) : [Text] {
-        var advice: [Text] = [];
-        if (Array.exists<Text>(healthConditions, func(c) { c == "hypertension" })) {
-            advice := Array.append<Text>(advice, ["Monitor blood pressure regularly"]);
-        };
-        if (Array.exists<Text>(healthConditions, func(c) { c == "diabetes" })) {
-            advice := Array.append<Text>(advice, ["Avoid sugary foods, monitor blood sugar levels"]);
-        };
-        return advice;
-    };
-
-    // Assign health coach plan to a user
-    public func createHealthPlan(username: Text, weight: Float, height: Float, age: Int, gender: Text, healthConditions: [Text]) : async Text {
-        let recommendedCalories = calculateCalories(weight, height, age, gender);
-        let exercisePlan = generateExercisePlan(weight, healthConditions);
-        let personalizedAdvice = generatePersonalizedAdvice(healthConditions);
-
-        let newHealthRecord: HealthData = {
-            username = username;
-            recommendedCalories = recommendedCalories;
-            exercisePlan = exercisePlan;
-            personalizedAdvice = personalizedAdvice;
-        };
-
-        healthRecords := Array.append<HealthData>(healthRecords, [newHealthRecord]);
-        return "Health coach plan created successfully!";
-    };
-
-    // Get health plan for a user
-    public func getHealthPlan(username: Text) : async ?HealthData {
-        switch (Array.find<HealthData>(healthRecords, func(r) { r.username == username })) {
-            case (?record) return ?record;
             case (_) return null;
-        };
+        }
+    };
+
+    // Function to add new health advice
+    public func addHealthAdvice(recommendation: Text, reason: Text): async Text {
+        healthRecommendations := Array.append<HealthAdvice>(healthRecommendations, [{ recommendation; reason }]);
+        return "New health advice added successfully.";
+    };
+
+    // Debug function to display all health recommendations
+    public func debugHealthRecommendations() : async () {
+        Debug.print("Health Recommendations: " # Array.toText(healthRecommendations));
+    };
+    
+    // Debug function to display all users
+    public func debugUsers() : async () {
+        await User.debugUsers();
     };
 };
-
