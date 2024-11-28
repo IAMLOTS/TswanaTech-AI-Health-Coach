@@ -1,0 +1,14 @@
+{
+    "canisters": {
+        "frontend": {
+            "type": "assets",
+            "source": ["dist"]
+        },
+        "backend": {
+            "type": "motoko",
+            "main": "src/backend/main.mo"
+        }
+    },
+    "output_env_file": ".env",
+    "version": 1
+}
