@@ -1,5 +1,5 @@
 {
-<<<<<<< HEAD
+
   "name": "ai-health-coach",
   "version": "0.1.0",
   "private": true,
@@ -22,7 +22,7 @@
     "vite": "^4.2.0"
   }
 }
-=======
+
   "engines": {
     "node": ">=16.0.0",
     "npm": ">=7.0.0"
@@ -40,4 +40,4 @@
     "src/backend_frontend"
   ]
 }
->>>>>>> bb04bdd962ce7eb142e588831f32a250e1b78075
+
