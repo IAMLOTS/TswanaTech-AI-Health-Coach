@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 {
     "canisters": {
         "frontend": {
@@ -13,7 +13,7 @@
     "output_env_file": ".env",
     "version": 1
 }
-=======
+
 {
   "canisters": {
     "backend_backend": {
@@ -40,4 +40,4 @@
   "output_env_file": ".env",
   "version": 1
 }
->>>>>>> bb04bdd962ce7eb142e588831f32a250e1b78075
+
